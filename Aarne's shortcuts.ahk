@@ -7,10 +7,7 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 #!^+3:: PreviousWindow()
 
-#!^+4:: 
-      SetTitleMatchMode 2
-	WinActivate GNU Emacs
-	return
+#!^+4:: WinActivate ahk_exe code.exe
 
 #!^+5:: WinActivate ahk_exe msedge.exe
 
@@ -24,7 +21,7 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 #!^+b:: return
 
-#!^+c:: 
+#!^+c::
 	Edit
       SetTitleMatchMode 2
       WinWaitActive Aarne's shortcuts.ahk ahk_exe notepad.exe
@@ -38,6 +35,16 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 #!^+f:: return
 
+#!^+Left:: RunWait, komorebic.exe move left, , Hide
+#!^+Right:: RunWait, komorebic.exe move right, , Hide
+#!^+Up:: RunWait, komorebic.exe move up, , Hide
+#!^+Down:: RunWait, komorebic.exe move down, , Hide
+
+#!^Left:: RunWait, komorebic.exe focus left, , Hide
+#!^Right:: RunWait, komorebic.exe focus right, , Hide
+#!^Up:: RunWait, komorebic.exe focus up, , Hide
+#!^Down:: RunWait, komorebic.exe focus down, , Hide
+
 
 PreviousWindow(){
     list := ""
@@ -50,7 +57,7 @@ PreviousWindow(){
         WinGetTitle, title, ahk_id %this_ID%
         If (title = "")
             continue
-        If (!IsWindow(WinExist("ahk_id" . this_ID))) 
+        If (!IsWindow(WinExist("ahk_id" . this_ID)))
             continue
         WinActivate, ahk_id %this_ID%, ,2
             break
