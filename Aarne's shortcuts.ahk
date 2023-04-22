@@ -35,15 +35,25 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 #!^+f:: return
 
-#!^+Left:: RunWait, komorebic.exe move left, , Hide
-#!^+Right:: RunWait, komorebic.exe move right, , Hide
-#!^+Up:: RunWait, komorebic.exe move up, , Hide
-#!^+Down:: RunWait, komorebic.exe move down, , Hide
+; #!^{:: RunWait, komorebic.exe move left, , Hide
+; #!^-:: RunWait, komorebic.exe move right, , Hide
+; #!^*:: RunWait, komorebic.exe move up, , Hide
+; #!^}:: RunWait, komorebic.exe move down, , Hide
 
-#!^Left:: RunWait, komorebic.exe focus left, , Hide
-#!^Right:: RunWait, komorebic.exe focus right, , Hide
-#!^Up:: RunWait, komorebic.exe focus up, , Hide
-#!^Down:: RunWait, komorebic.exe focus down, , Hide
+; #!^j:: RunWait, komorebic.exe focus left, , Hide
+; #!^l:: RunWait, komorebic.exe focus right, , Hide
+; #!^i:: RunWait, komorebic.exe focus up, , Hide
+; #!^k:: RunWait, komorebic.exe focus down, , Hide
+
+; #!^+j:: RunWait, komorebic.exe stack left, , Hide
+; #!^+l:: RunWait, komorebic.exe stack right, , Hide
+; #!^+i:: RunWait, komorebic.exe stack up, , Hide
+; #!^+k:: RunWait, komorebic.exe stack down, , Hide
+
+; #!^u:: RunWait, komorebic.exe cycle-stack previous, , Hide
+; #!^m:: RunWait, komorebic.exe cycle-stack next, , Hide
+
+; #!^+.:: RunWait, komorebic.exe unstack, , Hide
 
 
 PreviousWindow(){
