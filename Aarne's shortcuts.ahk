@@ -1,75 +1,99 @@
-﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+﻿#WinActivateForce
 ; #Warn  ; Enable warnings to assist with detecting common errors.
-SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
-SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+SendMode "Input"  ; Recommended for new scripts due to its superior speed and reliability.
+SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 
-#!^+1:: Run "msedge.exe" "--new-window"
-
+#!^+1:: Run "msedge.exe --new-window"
 #!^+3:: PreviousWindow()
+#!^+4:: WinActivate "ahk_exe code.exe"
+#!^+5:: WinActivate "ahk_exe msedge.exe"
+#!^+7:: WinMinimize "A"
+#!^+8:: WinActivate "ahk_exe alacritty.exe"
+#!^+a:: WinActivate "ahk_exe Spotify.exe"
+#!^+Left:: MoveFocus("left")
+#!^+Up:: MoveFocus("up")
+#!^+Down:: MoveFocus("down")
+#!^+Right:: MoveFocus("right")
 
-#!^+4:: WinActivate ahk_exe code.exe
+SortCallback(first, second, offset) {
 
-#!^+5:: WinActivate ahk_exe msedge.exe
+}
 
-#!^+6:: return
+MoveFocus(direction) {
+    curr_id := WinGetId("A")
+    WinGetPos &curr_x, &curr_y, &curr_w, &curr_h, curr_id
+    ; OutputDebug "curr_id=" curr_id " curr_x=" curr_x " curr_y=" curr_y " curr_w=" curr_w " curr_h=" curr_h
 
-#!^+7:: WinMinimize A
+    curr_cx := curr_x + (curr_w / 2)
+    curr_cy := curr_y + (curr_h / 2)
 
-#!^+8:: WinActivate ahk_exe alacritty.exe
+    bestid := 0
+    best_distance := -1
 
-#!^+a:: WinActivate ahk_exe Spotify.exe
-
-#!^+b:: return
-
-#!^+c::
-	Edit
-      SetTitleMatchMode 2
-      WinWaitActive Aarne's shortcuts.ahk ahk_exe notepad.exe
-	WinWaitClose
-	Reload
-      return
-
-#!^+d:: return
-
-#!^+e:: return
-
-#!^+f:: return
-
-; #!^{:: RunWait, komorebic.exe move left, , Hide
-; #!^-:: RunWait, komorebic.exe move right, , Hide
-; #!^*:: RunWait, komorebic.exe move up, , Hide
-; #!^}:: RunWait, komorebic.exe move down, , Hide
-
-; #!^j:: RunWait, komorebic.exe focus left, , Hide
-; #!^l:: RunWait, komorebic.exe focus right, , Hide
-; #!^i:: RunWait, komorebic.exe focus up, , Hide
-; #!^k:: RunWait, komorebic.exe focus down, , Hide
-
-; #!^+j:: RunWait, komorebic.exe stack left, , Hide
-; #!^+l:: RunWait, komorebic.exe stack right, , Hide
-; #!^+i:: RunWait, komorebic.exe stack up, , Hide
-; #!^+k:: RunWait, komorebic.exe stack down, , Hide
-
-; #!^u:: RunWait, komorebic.exe cycle-stack previous, , Hide
-; #!^m:: RunWait, komorebic.exe cycle-stack next, , Hide
-
-; #!^+.:: RunWait, komorebic.exe unstack, , Hide
-
-
-PreviousWindow(){
-    list := ""
-    WinGet, id, list
-    Loop, %id%
-    {
-        this_ID := id%A_Index%
-        IfWinActive, ahk_id %this_ID%
+    ids := WinGetList()
+    for id in ids {
+        if (id == curr_id) {
             continue
-        WinGetTitle, title, ahk_id %this_ID%
+        }
+        minmax := WinGetMinMax(id)
+        if (minmax == -1) {
+            ; Ignore minimized windows
+            continue
+        }
+        if (!IsWindow(id)) {
+            ; Not a good window
+            continue
+        }
+        WinGetPos &x, &y, &w, &h, id
+        cx := x + (w / 2)
+        cy := y + (h / 2)
+        title := wingettitle(id)
+        ; OutputDebug "id=" id " minmax=" minmax " x=" x " y=" y " title=" title
+        if (direction == "left") {
+            if (cx >= curr_cx - 50) {
+                continue
+            }
+        }
+        else if (direction == "up") {
+            if (cy >= curr_cy - 50) {
+                continue
+            }
+        }
+        else if (direction == "down") {
+            if (cy < curr_cy + 50) {
+                continue
+            }
+        }
+        else if (direction == "right") {
+            if (cx < curr_cx + 50) {
+                continue
+            }
+        }
+
+        distance := sqrt((curr_cx - cx)**2 + (curr_cy - cy)**2)
+        if (best_distance == -1 || distance < best_distance) {
+            bestid := id
+            best_distance := distance
+        }
+    }
+
+    if (bestid != 0) {
+        ; outputdebug "selected=" bestid
+        WinActivate(bestid)
+    }
+}
+
+PreviousWindow() {
+    ids := WinGetList()
+    for id in ids {
+        if WinActive(id)
+            continue
+        title := WinGetTitle(id)
         If (title = "")
             continue
-        If (!IsWindow(WinExist("ahk_id" . this_ID)))
+        If (!IsWindow(WinExist(id)))
             continue
-        WinActivate, ahk_id %this_ID%, ,2
+        WinActivate(id)
             break
     }
 }
@@ -78,15 +102,15 @@ PreviousWindow(){
 ; Check whether the target window is activation target
 ;-----------------------------------------------------------------
 IsWindow(hWnd){
-    WinGet, dwStyle, Style, ahk_id %hWnd%
+    dwStyle := WinGetStyle(hWnd)
     if ((dwStyle&0x08000000) || !(dwStyle&0x10000000)) {
         return false
     }
-    WinGet, dwExStyle, ExStyle, ahk_id %hWnd%
+    dwExStyle := WinGetExStyle(hWnd)
     if (dwExStyle & 0x00000080) {
         return false
     }
-    WinGetClass, szClass, ahk_id %hWnd%
+    szClass := WinGetClass(hWnd)
     if (szClass = "TApplication") {
         return false
     }
