@@ -108,6 +108,9 @@ WinEventProc(hWinEventHook, event, hwnd, idObject, idChild, dwEventThread, dwmsE
 MoveFocus(direction) {
     curr_id := WinExist("A")
     if (curr_id == 0) {
+        curr_id := WinGetList()[1]
+    }
+    if (curr_id == 0) {
         return
     }
     WinGetPos &curr_x, &curr_y, &curr_w, &curr_h, curr_id
