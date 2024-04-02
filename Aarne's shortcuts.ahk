@@ -4,6 +4,10 @@
 SendMode "Input"  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 
+InitGlobals()
+RegisterShellHooks()
+RegisterWinEventCallbacks()
+
 #!^+1:: Run "msedge.exe --new-window"
 #!^+3:: PreviousWindow()
 #!^+4:: WinActivate "ahk_exe code.exe"
@@ -15,6 +19,16 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 #!^+Up:: MoveFocus("up")
 #!^+Down:: MoveFocus("down")
 #!^+Right:: MoveFocus("right")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+InitGlobals() {
+    global EVENT_OBJECT_LOCATIONCHANGE := 0x800B
+    global EVENT_SYSTEM_MOVESIZEEND := 0x000B
+    global EVENT_SYSTEM_MOVESIZESTART := 0x000A
+    global WINEVENT_OUTOFCONTEXT := 0x0
+    global WINEVENT_SKIPOWNPROCESS := 0x2
+}
 
 DrawBorder(hwnd) {
     static g := gui()
@@ -38,53 +52,44 @@ DrawBorder(hwnd) {
     }
 }
 
-dummy := gui()
-dummy.opt("+LastFound")
-hwnd := WinExist()
-ret := DllCall("RegisterShellHookWindow", "uint", hwnd)
-; outputdebug(ret)
-MsgNum := DllCall("RegisterWindowMessage", "str", "SHELLHOOK")
-; outputdebug(msgnum)
-OnMessage(MsgNum, ShellMessage)
+RegisterShellHooks() {
+    static dummy := gui()
+    dummy.opt("+LastFound")
+    hwnd := WinExist()
+    ret := DllCall("RegisterShellHookWindow", "uint", hwnd)
+    ; outputdebug(ret)
+    MsgNum := DllCall("RegisterWindowMessage", "str", "SHELLHOOK")
+    ; outputdebug(msgnum)
+    OnMessage(MsgNum, ShellMessage)
+}
 
 ShellMessage(wParam, lParam, *) {
-    ; outputdebug(wparam)
-    if (winexist(lparam) && iswindow(lparam)) {
-        if (wparam == 32772 || wparam == 4) {
-            drawborder(lparam)
-        } else if (wparam == 32774 || wparam == 6) {
-            ; outputdebug("clear")
-            ; drawborder(-1)
-        }
+    ; outputdebug(wparam " " lparam)
+    if (wParam == 32772 || wParam == 4) {
+        if (lParam != 0 and IsWindow(lParam))
+            DrawBorder(lparam)
+        else
+            DrawBorder(-1)
     }
     ; outputdebug(lParam)
 }
 
-
-EVENT_OBJECT_LOCATIONCHANGE := 0x800B
-EVENT_SYSTEM_MOVESIZEEND := 0x000B
-EVENT_SYSTEM_MOVESIZESTART := 0x000A
-WINEVENT_OUTOFCONTEXT := 0x0
-WINEVENT_SKIPOWNPROCESS := 0x2
-callback := CallbackCreate(WinEventProc)
-
-DllCall("SetWinEventHook"
-    , "UInt",   EVENT_SYSTEM_MOVESIZESTART                      ;_In_  UINT eventMin
-    , "UInt",   EVENT_SYSTEM_MOVESIZEEND                        ;_In_  UINT eventMax
+SetWinEventHook(eventmin, eventmax, callback) {
+    DllCall("SetWinEventHook"
+    , "UInt",   eventmin                                        ;_In_  UINT eventMin
+    , "UInt",   eventmax                                        ;_In_  UINT eventMax
     , "Ptr" ,   0x0                                             ;_In_  HMODULE hmodWinEventProc
     , "Ptr" ,   callback                                        ;_In_  WINEVENTPROC lpfnWinEventProc
     , "UInt",   0                                               ;_In_  DWORD idProcess
     , "UInt",   0x0                                             ;_In_  DWORD idThread
     , "UInt",   WINEVENT_OUTOFCONTEXT|WINEVENT_SKIPOWNPROCESS)  ;_In_  UINT dwflags
+}
 
-DllCall("SetWinEventHook"
-    , "UInt",   EVENT_OBJECT_LOCATIONCHANGE                     ;_In_  UINT eventMin
-    , "UInt",   EVENT_OBJECT_LOCATIONCHANGE                     ;_In_  UINT eventMax
-    , "Ptr" ,   0x0                                             ;_In_  HMODULE hmodWinEventProc
-    , "Ptr" ,   callback                                        ;_In_  WINEVENTPROC lpfnWinEventProc
-    , "UInt",   0                                               ;_In_  DWORD idProcess
-    , "UInt",   0x0                                             ;_In_  DWORD idThread
-    , "UInt",   WINEVENT_OUTOFCONTEXT|WINEVENT_SKIPOWNPROCESS)  ;_In_  UINT dwflags
+RegisterWinEventCallbacks() {
+    static callback := CallbackCreate(WinEventProc)
+    SetWinEventHook(EVENT_SYSTEM_MOVESIZESTART, EVENT_SYSTEM_MOVESIZEEND, callback)
+    SetWinEventHook(EVENT_OBJECT_LOCATIONCHANGE, EVENT_OBJECT_LOCATIONCHANGE, callback)
+}
 
 WinEventProc(hWinEventHook, event, hwnd, idObject, idChild, dwEventThread, dwmsEventTime) {
     static moving := false
@@ -194,15 +199,14 @@ WinMoveBelow(hwnd, hwndBelow) {
 	errorlevel := DllCall("SetWindowPos", "uint", hwnd, "uint", hwndBelow
 		, "int", 0, "int", 0, "int", 0, "int", 0, "uint", 0x13)
 }
-;-----------------------------------------------------------------
-; Check whether the target window is activation target
-;-----------------------------------------------------------------
+
 IsWindow(hWnd){
     dwStyle := WinGetStyle(hWnd)
+    dwExStyle := WinGetExStyle(hWnd)
+    ; outputdebug(format("{:8x} {:8x}", dwStyle, dwExStyle))
     if ((dwStyle & 0xC8000000) || !(dwStyle & 0x10000000)) {
         return false
     }
-    dwExStyle := WinGetExStyle(hWnd)
     if (dwExStyle & 0x00000088) {
         return false
     }
