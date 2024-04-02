@@ -39,7 +39,7 @@ DrawBorder(hwnd) {
         ; outputdebug(format("{:08x} {:08x}", dwStyle, dwExtStyle))
 
         pos := wingetpos(&x, &y, &w, &h, hwnd)
-        g.backcolor := "5070f0"
+        g.backcolor := "0094fc"
         g.marginx := 0
         g.marginy := 0
         g.opt("-DPIScale -Caption +ToolWindow")
