@@ -142,36 +142,41 @@ MoveFocus(direction) {
             continue
         }
         WinGetPos &x, &y, &w, &h, id
-        cx := x + (w / 2)
-        cy := y + (h / 2)
         title := wingettitle(id)
         ; OutputDebug "id=" id " minmax=" minmax " x=" x " y=" y " title=" title
+
+        cy := y + (h / 2)
+        cx := x + (w / 2)
+
         if (direction == "left") {
-            if (cx >= curr_cx - 50) {
+            if cx >= curr_cx
                 continue
-            }
+            if y + h < curr_y + 50 or y > curr_y + curr_h - 50
+                cy := cy + 10000
         }
         else if (direction == "up") {
-            if (cy >= curr_cy - 50) {
+            if cy >= curr_cy
                 continue
-            }
+            if x + w < curr_x + 50 or x > curr_x + curr_w - 50
+                cx := cx + 10000
         }
         else if (direction == "down") {
-            if (cy < curr_cy + 50) {
+            if cy <= curr_cy
                 continue
-            }
+            if x + w < curr_x + 50 or x > curr_x + curr_w - 50
+                cx := cx + 10000
         }
         else if (direction == "right") {
-            if (cx < curr_cx + 50) {
+            if cx <= curr_cx
                 continue
-            }
+            if y + h < curr_y + 50 or y > curr_y + curr_h - 50
+                cy := cy + 10000
         }
 
         distance := sqrt((curr_cx - cx)**2 + (curr_cy - cy)**2)
         if (best_distance == -1 || distance < best_distance) {
             bestid := id
             best_distance := distance
-            best_coords := { x: x, y: y, w: w, h: h }
         }
     }
 
