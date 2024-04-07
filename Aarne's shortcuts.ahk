@@ -208,8 +208,9 @@ WinMoveBelow(hwnd, hwndBelow) {
 IsWindow(hWnd){
     dwStyle := WinGetStyle(hWnd)
     dwExStyle := WinGetExStyle(hWnd)
-    ; outputdebug(format("{:8x} {:8x}", dwStyle, dwExStyle))
-    if ((dwStyle & 0xC8000000) || !(dwStyle & 0x10000000)) {
+    ;title := wingettitle(hwnd)
+    ;outputdebug(format("title {} {:8x} {:8x}", title, dwStyle, dwExStyle))
+    if ((dwStyle & 0x48000000) || !(dwStyle & 0x10000000)) {
         return false
     }
     if (dwExStyle & 0x00000088) {
