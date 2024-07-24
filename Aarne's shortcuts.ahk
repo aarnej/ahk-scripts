@@ -65,7 +65,6 @@ ShellMessage(wParam, lParam, *) {
         }
         else if IsWindow(lParam) {
             DrawBorder(lparam)
-            lastHwnd := lParam
         }
     }
 }
