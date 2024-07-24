@@ -33,17 +33,22 @@ InitGlobals() {
 DrawBorder(hwnd) {
     static g := gui()
 
-    if (hwnd != -1 && IsWindow(hwnd)) {
-        pos := wingetpos(&x, &y, &w, &h, hwnd)
-        g.backcolor := "0094fc"
-        g.marginx := 0
-        g.marginy := 0
-        g.opt("-DPIScale -Caption +ToolWindow")
-        showopts := "x" x+4 " y" y-4 "  w" w-8 " h" h " hide"
-        g.show(showopts)
-        WinMoveBelow(g.hwnd, hwnd)
-        g.restore()
-    } else {
+    try {
+        if (hwnd > 0 && IsWindow(hwnd)) {
+            pos := wingetpos(&x, &y, &w, &h, hwnd)
+            g.backcolor := "0094fc"
+            g.marginx := 0
+            g.marginy := 0
+            g.opt("-DPIScale -Caption +ToolWindow")
+            showopts := "x" x+4 " y" y-4 "  w" w-8 " h" h " hide"
+            g.show(showopts)
+            WinMoveBelow(g.hwnd, hwnd)
+            g.restore()
+        }
+        else {
+            throw Error("")
+        }
+    } catch {
         g.hide()
     }
 }
@@ -60,12 +65,7 @@ RegisterShellHooks() {
 ShellMessage(wParam, lParam, *) {
     Log(Format("ShellMessage: wParam={}, lParam={}", wParam, lParam))
     if (wParam == 32772 || wParam == 4) {
-        if (lParam == 0) {
-            DrawBorder(-1)
-        }
-        else if IsWindow(lParam) {
-            DrawBorder(lparam)
-        }
+        DrawBorder(lparam)
     }
 }
 
@@ -101,7 +101,6 @@ WinEventProc(hWinEventHook, event, hwnd, idObject, idChild, dwEventThread, dwmsE
             drawborder(hwnd)
         }
     }
-    ; outputdebug(event)
     return
 }
 
