@@ -132,18 +132,34 @@ MoveFocus(direction) {
         if (id == curr_id) {
             continue
         }
-        minmax := WinGetMinMax(id)
-        if (minmax == -1) {
-            ; Ignore minimized windows
+        try {
+            minmax := WinGetMinMax(id)
+            if (minmax == -1) {
+                ; Ignore minimized windows
+                continue
+            }
+            if (!IsWindow(id)) {
+                ; Not a good window
+                continue
+            }
+            WinGetClientPos &x, &y, &w, &h, id
+            ; title := wingettitle(id)
+            ; OutputDebug "id=" id " minmax=" minmax " x=" x " y=" y " title=" title
+        }
+        catch {
             continue
         }
-        if (!IsWindow(id)) {
-            ; Not a good window
+
+        ; Make sure the center of the window is mostly uncovered by other windows
+        coveredCount := 0
+        for tx in [2,3] {
+            for ty in [2,3] {
+                coveredCount += (id != WindowFromPoint(x + tx*w//5, y + ty*h//5) ? 1 : 0)
+            }
+        }
+        if (coveredCount > 2) {
             continue
         }
-        WinGetPos &x, &y, &w, &h, id
-        title := wingettitle(id)
-        ; OutputDebug "id=" id " minmax=" minmax " x=" x " y=" y " title=" title
 
         cy := y + (h / 2)
         cx := x + (w / 2)
@@ -188,15 +204,20 @@ MoveFocus(direction) {
 PreviousWindow() {
     ids := WinGetList()
     for id in ids {
-        if WinActive(id)
+        try {
+            if WinActive(id)
+                continue
+            title := WinGetTitle(id)
+            If (title = "")
+                continue
+            If (!IsWindow(WinExist(id)))
+                continue
+            WinActivate(id)
+                break
+        }
+        catch {
             continue
-        title := WinGetTitle(id)
-        If (title = "")
-            continue
-        If (!IsWindow(WinExist(id)))
-            continue
-        WinActivate(id)
-            break
+        }
     }
 }
 
@@ -206,19 +227,38 @@ WinMoveBelow(hwnd, hwndBelow) {
 }
 
 IsWindow(hWnd){
-    dwStyle := WinGetStyle(hWnd)
-    dwExStyle := WinGetExStyle(hWnd)
-    ;title := wingettitle(hwnd)
-    ;outputdebug(format("title {} {:8x} {:8x}", title, dwStyle, dwExStyle))
-    if ((dwStyle & 0x48000000) || !(dwStyle & 0x10000000)) {
+    styles := GetStyle(hWnd)
+    ; (WS_CHILD | WS_DISABLED) || !WS_VISIBLE
+    if ((styles.style & 0x48000000) || !(styles.style & 0x10000000)) {
         return false
     }
-    if (dwExStyle & 0x00000088) {
+    ;  WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW | WS_EX_TOPMOST
+    if (styles.exStyle & 0x08000088) {
         return false
     }
+    title := WinGetTitle(hWnd)
+    Log(Format("{} {:08x}/{:08x}", title, styles.style, styles.exStyle))
     szClass := WinGetClass(hWnd)
     if (szClass = "TApplication") {
         return false
     }
     return true
+}
+
+GetStyle(hWnd) {
+    styles := {
+        style: WinGetStyle(hWnd),
+        exStyle: WinGetExStyle(hWnd)
+    }
+    return styles
+}
+
+WindowFromPoint(X, Y) { ; by SKAN and Linear Spoon
+    return DllCall( "GetAncestor", "UInt"
+            , DllCall( "WindowFromPoint", "UInt64", X | (Y << 32))
+            , "UInt", GA_ROOT := 2 )
+}
+
+Log(text) {
+    FileAppend text "`n", A_Desktop "/" SubStr(A_ScriptName, 1, -4) ".log"
 }
