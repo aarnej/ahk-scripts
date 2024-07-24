@@ -33,11 +33,7 @@ InitGlobals() {
 DrawBorder(hwnd) {
     static g := gui()
 
-    if (hwnd != -1) {
-        dwStyle := wingetstyle(hwnd)
-        dwExtStyle := wingetexstyle(hwnd)
-        ; outputdebug(format("{:08x} {:08x}", dwStyle, dwExtStyle))
-
+    if (hwnd != -1 && IsWindow(hwnd)) {
         pos := wingetpos(&x, &y, &w, &h, hwnd)
         g.backcolor := "0094fc"
         g.marginx := 0
@@ -57,21 +53,21 @@ RegisterShellHooks() {
     dummy.opt("+LastFound")
     hwnd := WinExist()
     ret := DllCall("RegisterShellHookWindow", "uint", hwnd)
-    ; outputdebug(ret)
     MsgNum := DllCall("RegisterWindowMessage", "str", "SHELLHOOK")
-    ; outputdebug(msgnum)
     OnMessage(MsgNum, ShellMessage)
 }
 
 ShellMessage(wParam, lParam, *) {
-    ; outputdebug(wparam " " lparam)
+    Log(Format("ShellMessage: wParam={}, lParam={}", wParam, lParam))
     if (wParam == 32772 || wParam == 4) {
-        if (lParam != 0 and IsWindow(lParam))
-            DrawBorder(lparam)
-        else
+        if (lParam == 0) {
             DrawBorder(-1)
+        }
+        else if IsWindow(lParam) {
+            DrawBorder(lparam)
+            lastHwnd := lParam
+        }
     }
-    ; outputdebug(lParam)
 }
 
 SetWinEventHook(eventmin, eventmax, callback) {
@@ -228,21 +224,22 @@ WinMoveBelow(hwnd, hwndBelow) {
 
 IsWindow(hWnd){
     styles := GetStyle(hWnd)
+    pass := true
     ; (WS_CHILD | WS_DISABLED) || !WS_VISIBLE
     if ((styles.style & 0x48000000) || !(styles.style & 0x10000000)) {
-        return false
+        pass := false
     }
     ;  WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW | WS_EX_TOPMOST
     if (styles.exStyle & 0x08000088) {
-        return false
+        pass := false
     }
+    ; szClass := WinGetClass(hWnd)
+    ; if (szClass = "TApplication") {
+        ;     return false
+        ; }
     title := WinGetTitle(hWnd)
-    Log(Format("{} {:08x}/{:08x}", title, styles.style, styles.exStyle))
-    szClass := WinGetClass(hWnd)
-    if (szClass = "TApplication") {
-        return false
-    }
-    return true
+    Log(Format("{} {:08x}/{:08x} pass={}", title, styles.style, styles.exStyle, pass))
+    return pass
 }
 
 GetStyle(hWnd) {
