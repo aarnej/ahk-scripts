@@ -225,8 +225,8 @@ IsWindow(hWnd){
     if ((styles.style & 0x48000000) || !(styles.style & 0x10000000)) {
         pass := false
     }
-    ;  WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW | WS_EX_TOPMOST
-    if (styles.exStyle & 0x08000088) {
+    ;  WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP | S_EX_TOOLWINDOW | WS_EX_TOPMOST
+    if (styles.exStyle & 0x08200088) {
         pass := false
     }
     ; szClass := WinGetClass(hWnd)
