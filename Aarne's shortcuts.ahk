@@ -89,19 +89,20 @@ RegisterWinEventCallbacks() {
 WinEventProc(hWinEventHook, event, hwnd, idObject, idChild, dwEventThread, dwmsEventTime) {
     static moving := false
 
-    if (event == EVENT_SYSTEM_MOVESIZESTART) {
-        drawborder(-1)
-        moving := true
-    } else if (event == EVENT_SYSTEM_MOVESIZEEND) {
-        drawborder(hwnd)
-        moving := false
-    } else if (event == EVENT_OBJECT_LOCATIONCHANGE) {
-        if (!moving && idobject == 0 && IsWindow(hwnd)) {
-            ; outputdebug(idobject)
+    try {
+        if (event == EVENT_SYSTEM_MOVESIZESTART) {
+            drawborder(-1)
+            moving := true
+        } else if (event == EVENT_SYSTEM_MOVESIZEEND) {
             drawborder(hwnd)
+            moving := false
+        } else if (event == EVENT_OBJECT_LOCATIONCHANGE) {
+            if (!moving && idobject == 0 && IsWindow(hwnd)) {
+                ; outputdebug(idobject)
+                drawborder(hwnd)
+            }
         }
     }
-    return
 }
 
 MoveFocus(direction) {
@@ -208,9 +209,6 @@ PreviousWindow() {
                 continue
             WinActivate(id)
                 break
-        }
-        catch {
-            continue
         }
     }
 }
