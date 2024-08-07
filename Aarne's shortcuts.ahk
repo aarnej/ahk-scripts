@@ -13,7 +13,7 @@ RegisterWinEventCallbacks()
 #!^+4:: WinActivate "ahk_exe code.exe"
 #!^+5:: WinActivate "ahk_exe msedge.exe"
 #!^+7:: WinMinimize "A"
-#!^+8:: WinActivate "ahk_exe alacritty.exe"
+#!^+8:: WinActivate "ahk_exe WindowsTerminal.exe"
 #!^+a:: WinActivate "ahk_exe Spotify.exe"
 #!^+Left:: MoveFocus("left")
 #!^+Up:: MoveFocus("up")
