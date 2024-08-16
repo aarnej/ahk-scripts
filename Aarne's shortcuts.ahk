@@ -9,6 +9,7 @@ RegisterShellHooks()
 RegisterWinEventCallbacks()
 
 #!^+1:: Run "msedge.exe --new-window"
+#!^+2:: WinActivate "slack ahk_exe msedge.exe"
 #!^+3:: PreviousWindow()
 #!^+4:: WinActivate "ahk_exe code.exe"
 #!^+5:: WinActivate "ahk_exe msedge.exe"
@@ -221,18 +222,20 @@ WinMoveBelow(hwnd, hwndBelow) {
 IsWindow(hWnd){
     styles := GetStyle(hWnd)
     pass := true
-    ; (WS_CHILD | WS_DISABLED) || !WS_VISIBLE
-    if ((styles.style & 0x48000000) || !(styles.style & 0x10000000)) {
-        pass := false
+
+    if (styles.style == 0x14cf0000 && styles.exStyle == 0x00200100) {
+        ; = Windows Terminal
     }
-    ;  WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP | S_EX_TOOLWINDOW | WS_EX_TOPMOST
-    if (styles.exStyle & 0x08200088) {
-        pass := false
+    else {
+        ; (WS_CHILD | WS_DISABLED) || !WS_VISIBLE
+        if ((styles.style & 0x48000000) || !(styles.style & 0x10000000)) {
+            pass := false
+        }
+        ;  WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP | S_EX_TOOLWINDOW | WS_EX_TOPMOST
+        if (styles.exStyle & 0x08200088) {
+            pass := false
+        }
     }
-    ; szClass := WinGetClass(hWnd)
-    ; if (szClass = "TApplication") {
-        ;     return false
-        ; }
     title := WinGetTitle(hWnd)
     Log(Format("{} {:08x}/{:08x} pass={}", title, styles.style, styles.exStyle, pass))
     return pass
@@ -253,5 +256,7 @@ WindowFromPoint(X, Y) { ; by SKAN and Linear Spoon
 }
 
 Log(text) {
-    FileAppend text "`n", A_Desktop "/" SubStr(A_ScriptName, 1, -4) ".log"
+    try {
+        FileAppend text "`n", A_Desktop "/" SubStr(A_ScriptName, 1, -4) ".log"
+    }
 }
