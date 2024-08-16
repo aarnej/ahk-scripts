@@ -9,10 +9,10 @@ RegisterShellHooks()
 RegisterWinEventCallbacks()
 
 #!^+1:: Run "msedge.exe --new-window"
-#!^+2:: WinActivate "slack ahk_exe msedge.exe"
 #!^+3:: PreviousWindow()
 #!^+4:: WinActivate "ahk_exe code.exe"
 #!^+5:: WinActivate "ahk_exe msedge.exe"
+#!^+6:: WinActivate "slack ahk_exe msedge.exe"
 #!^+7:: WinMinimize "A"
 #!^+8:: WinActivate "ahk_exe WindowsTerminal.exe"
 #!^+a:: WinActivate "ahk_exe Spotify.exe"
