@@ -16,6 +16,7 @@ RegisterWinEventCallbacks()
 #!^+7:: WinMinimize "A"
 #!^+8:: WinActivate "ahk_exe WindowsTerminal.exe"
 #!^+a:: WinActivate "ahk_exe Spotify.exe"
+#!^+b:: WinActivate "ahk_exe Obsidian.exe"
 #!^+Left:: MoveFocus("left")
 #!^+Up:: MoveFocus("up")
 #!^+Down:: MoveFocus("down")
