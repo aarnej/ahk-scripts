@@ -17,6 +17,7 @@ RegisterWinEventCallbacks()
 #!^+8:: WinActivate "ahk_exe WindowsTerminal.exe"
 #!^+a:: WinActivate "ahk_exe Spotify.exe"
 #!^+b:: WinActivate "ahk_exe Obsidian.exe"
+#!^+c:: WinActivate "ahk_exe ms-teams.exe"
 #!^+Left:: MoveFocus("left")
 #!^+Up:: MoveFocus("up")
 #!^+Down:: MoveFocus("down")
