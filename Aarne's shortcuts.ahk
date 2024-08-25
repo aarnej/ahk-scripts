@@ -18,6 +18,8 @@ RegisterWinEventCallbacks()
 #!^+a:: WinActivate "ahk_exe Spotify.exe"
 #!^+b:: WinActivate "ahk_exe Obsidian.exe"
 #!^+c:: WinActivate "ahk_exe ms-teams.exe"
+#!^+d:: SetDefaultKeyboard(0x0409) ; English (US)
+#!^+e:: SetDefaultKeyboard(0x0419) ; Russian
 #!^+Left:: MoveFocus("left")
 #!^+Up:: MoveFocus("up")
 #!^+Down:: MoveFocus("down")
@@ -261,4 +263,18 @@ Log(text) {
     try {
         FileAppend text "`n", A_Desktop "/" SubStr(A_ScriptName, 1, -4) ".log"
     }
+}
+
+SetDefaultKeyboard(LocaleID){
+	Static SPI_SETDEFAULTINPUTLANG := 0x005A, SPIF_SENDWININICHANGE := 2
+
+	Lan := DllCall("LoadKeyboardLayout", "Str", Format("{:08x}", LocaleID), "Int", 0)
+    binaryLocaleID := Buffer(4, 0)
+    NumPut("UInt", LocaleID, binaryLocaleID)
+	DllCall("SystemParametersInfo", "UInt", SPI_SETDEFAULTINPUTLANG, "UInt", 0, "Ptr", binaryLocaleID, "UInt", SPIF_SENDWININICHANGE)
+
+	ids := WinGetList()
+	for id in ids {
+		PostMessage 0x50, 0, Lan, , "ahk_id " id
+	}
 }
