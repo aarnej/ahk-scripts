@@ -19,7 +19,7 @@ RegisterWinEventCallbacks()
 #!^+b:: WinActivate "ahk_exe Obsidian.exe"
 #!^+c:: WinActivate "ahk_exe ms-teams.exe"
 #!^+d:: SetDefaultKeyboard(0x0409) ; English (US)
-#!^+e:: SetDefaultKeyboard(0x0419) ; Russian
+#!^+e:: SetDefaultKeyboard(0x20419) ; Russian mnemonic
 #!^+Left:: MoveFocus("left")
 #!^+Up:: MoveFocus("up")
 #!^+Down:: MoveFocus("down")
