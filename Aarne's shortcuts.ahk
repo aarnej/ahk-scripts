@@ -41,11 +41,11 @@ DrawBorder(hwnd) {
     try {
         if (hwnd > 0 && IsWindow(hwnd)) {
             pos := wingetpos(&x, &y, &w, &h, hwnd)
-            g.backcolor := "0094fc"
+            g.backcolor := "20b4fc"
             g.marginx := 0
             g.marginy := 0
             g.opt("-DPIScale -Caption +ToolWindow")
-            showopts := "x" x+4 " y" y-4 "  w" w-8 " h" h " hide"
+            showopts := "x" x " y" y-8 "  w" w " h" h+8 " hide"
             g.show(showopts)
             WinMoveBelow(g.hwnd, hwnd)
             g.restore()
