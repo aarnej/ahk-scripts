@@ -1,5 +1,5 @@
 ﻿#SingleInstance
-#Requires AutoHotkey v2
+#Requires AutoHotkey v2 64-bit
 #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode "Input"  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
@@ -45,10 +45,11 @@ DrawBorder(hwnd) {
             g.marginx := 0
             g.marginy := 0
             g.opt("-DPIScale -Caption +ToolWindow")
-            showopts := "x" x " y" y-8 "  w" w " h" h+8 " hide"
+            showopts := "x" x-8 " y" y-8 "  w" w+16 " h" h+16 " hide"
             g.show(showopts)
-            WinMoveBelow(g.hwnd, hwnd)
             g.restore()
+            WinMoveBelow(g.hwnd, hwnd)
+            MouseCenter(hwnd)
         }
         else {
             throw Error("")
@@ -277,4 +278,16 @@ SetDefaultKeyboard(LocaleID){
 	for id in ids {
 		PostMessage 0x50, 0, Lan, , "ahk_id " id
 	}
+}
+
+MouseCenter(hwnd) {
+    WinGetPos &wx, &wy, &ww, &wh, hwnd
+    CoordMode "Mouse", "Screen"
+    MouseGetPos &mx, &my
+    Log(Format("wx={},wy={},ww={},wh={},mx={},my={}", wx, wy, ww, wh, mx, my))
+    if mx < wx or mx > wx + ww or my < wy or my > wy + wh {
+        Log(Format("moving to x={},y={}", wx + ww/2, wy + wh/2))
+        DllCall("SetCursorPos", "int", wx + ww/2, "int", wy + wh/2)
+        ;MouseMove wx + ww/2, wy + wh/2
+    }
 }
