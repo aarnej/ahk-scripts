@@ -40,10 +40,7 @@ DrawBorder(hwnd) {
 
     try {
         if (hwnd > 0 && IsWindow(hwnd)) {
-            ;WinGetPos &x, &y, &w, &h, hwnd
             WinGetPosEx hwnd, &x, &y, &w, &h
-            ; WinGetPosEx hwnd, &ex, &ey, &ew, &eh
-            ; Log(Format("x={}/{},y={}/{},w={}/{},h={}/{}", x, ex, y, ey, w, ew, h, eh))
             g.backcolor := "20b4fc"
             g.marginx := 0
             g.marginy := 0
