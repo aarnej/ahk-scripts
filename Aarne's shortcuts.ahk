@@ -40,7 +40,10 @@ DrawBorder(hwnd) {
 
     try {
         if (hwnd > 0 && IsWindow(hwnd)) {
-            pos := wingetpos(&x, &y, &w, &h, hwnd)
+            ;WinGetPos &x, &y, &w, &h, hwnd
+            WinGetPosEx hwnd, &x, &y, &w, &h
+            ; WinGetPosEx hwnd, &ex, &ey, &ew, &eh
+            ; Log(Format("x={}/{},y={}/{},w={}/{},h={}/{}", x, ex, y, ey, w, ew, h, eh))
             g.backcolor := "20b4fc"
             g.marginx := 0
             g.marginy := 0
@@ -49,7 +52,7 @@ DrawBorder(hwnd) {
             g.show(showopts)
             g.restore()
             WinMoveBelow(g.hwnd, hwnd)
-            MouseCenter(hwnd)
+            MouseCenter(hwnd, x, y, w, h)
         }
         else {
             throw Error("")
@@ -280,8 +283,7 @@ SetDefaultKeyboard(LocaleID){
 	}
 }
 
-MouseCenter(hwnd) {
-    WinGetPos &wx, &wy, &ww, &wh, hwnd
+MouseCenter(hwnd, wx, wy, ww, wh) {
     CoordMode "Mouse", "Screen"
     MouseGetPos &mx, &my
     Log(Format("wx={},wy={},ww={},wh={},mx={},my={}", wx, wy, ww, wh, mx, my))
@@ -290,4 +292,40 @@ MouseCenter(hwnd) {
         DllCall("SetCursorPos", "int", wx + ww/2, "int", wy + wh/2)
         ;MouseMove wx + ww/2, wy + wh/2
     }
+}
+
+WinGetPosEx(hWindow, &X := "", &Y := "", &Width := "", &Height := ""
+;, &Offset_X := "", &Offset_Y := ""
+) {
+   Static DWMWA_EXTENDED_FRAME_BOUNDS := 9
+   ;-- Get the window's dimensions
+   ;   Note: Only the first 16 bytes of the RECTPlus structure are used by the
+   ;   DwmGetWindowAttribute and GetWindowRect functions.
+   RECTPlus := Buffer(24,0)
+    DWMRC := DllCall("dwmapi\DwmGetWindowAttribute",
+                    "Ptr",  hWindow,                     ;-- hwnd
+                    "UInt", DWMWA_EXTENDED_FRAME_BOUNDS, ;-- dwAttribute
+                    "Ptr",  RECTPlus,                    ;-- pvAttribute
+                    "UInt", 16,                          ;-- cbAttribute
+                    "UInt")
+   ;-- Populate the output variables
+   X := NumGet(RECTPlus,  0, "Int") ; left
+   Y := NumGet(RECTPlus,  4, "Int") ; top
+   R := NumGet(RECTPlus,  8, "Int") ; right
+   B := NumGet(RECTPlus, 12, "Int") ; bottom
+   Width    := R - X ; right - left
+   Height   := B - Y ; bottom - top
+;    OffSet_X := 0
+;    OffSet_Y := 0
+;    ;-- Collect dimensions via GetWindowRect
+;    RECT := Buffer(16, 0)
+;    DllCall("GetWindowRect", "Ptr", hWindow,"Ptr", RECT)
+;    ;-- Right minus Left
+;    GWR_Width := NumGet(RECT,  8, "Int") - NumGet(RECT, 0, "Int")
+;    ;-- Bottom minus Top
+;    GWR_Height:= NumGet(RECT, 12, "Int") - NumGet(RECT, 4, "Int")
+;    ;-- Calculate offsets and update output variables
+;    NumPut("Int", Offset_X := (Width  - GWR_Width)  // 2, RECTPlus, 16)
+;    NumPut("Int", Offset_Y := (Height - GWR_Height) // 2, RECTPlus, 20)
+   Return RECTPlus
 }
