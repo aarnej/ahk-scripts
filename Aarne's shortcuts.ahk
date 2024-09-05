@@ -10,14 +10,35 @@ RegisterWinEventCallbacks()
 
 #!^+1:: Run "msedge.exe --new-window"
 #!^+3:: PreviousWindow()
-#!^+4:: WinActivate "ahk_exe code.exe"
-#!^+5:: WinActivate "ahk_exe msedge.exe"
-#!^+6:: WinActivate "slack ahk_exe msedge.exe"
+#!^+4:: {
+    if WinExist("ahk_exe code.exe")
+        WinActivate
+}
+#!^+5:: {
+    if WinExist("ahk_exe msedge.exe")
+        WinActivate
+}
+#!^+6:: {
+    if WinExist("slack ahk_exe msedge.exe")
+        WinActivate
+}
 #!^+7:: WinMinimize "A"
-#!^+8:: WinActivate "ahk_exe WindowsTerminal.exe"
-#!^+a:: WinActivate "ahk_exe Spotify.exe"
-#!^+b:: WinActivate "ahk_exe Obsidian.exe"
-#!^+c:: WinActivate "ahk_exe ms-teams.exe"
+#!^+8:: {
+    if WinExist("ahk_exe WindowsTerminal.exe")
+        WinActivate
+}
+#!^+a:: {
+    if WinExist("ahk_exe Spotify.exe")
+        WinActivate
+}
+#!^+b:: {
+    if WinExist("ahk_exe Obsidian.exe")
+        WinActivate
+}
+#!^+c:: {
+    if WinExist("ahk_exe ms-teams.exe")
+        WinActivate
+}
 #!^+d:: SetDefaultKeyboard(0x0409) ; English (US)
 #!^+e:: SetDefaultKeyboard(0x20419) ; Russian mnemonic
 #!^+Left:: MoveFocus("left")
