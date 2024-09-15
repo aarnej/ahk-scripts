@@ -1,4 +1,5 @@
-﻿#SingleInstance
+﻿#Include VD.ahk\VD.ah2
+#SingleInstance
 #Requires AutoHotkey v2 64-bit
 #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode "Input"  ; Recommended for new scripts due to its superior speed and reliability.
@@ -45,6 +46,8 @@ RegisterWinEventCallbacks()
 #!^+Up:: MoveFocus("up")
 #!^+Down:: MoveFocus("down")
 #!^+Right:: MoveFocus("right")
+#^+Left:: MoveWindowToDesktop(-1)
+#^+Right:: MoveWindowToDesktop(+1)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -54,6 +57,16 @@ InitGlobals() {
     global EVENT_SYSTEM_MOVESIZESTART := 0x000A
     global WINEVENT_OUTOFCONTEXT := 0x0
     global WINEVENT_SKIPOWNPROCESS := 0x2
+}
+
+MoveWindowToDesktop(offset) {
+    handle := WinExist("A")
+    if handle {
+        VD.MoveWindowToRelativeDesktopNum(handle, offset)
+        n := VD.getDesktopNumOfWindow(handle)
+        VD.goToDesktopNum(n)
+        WinActivate(handle)
+    }
 }
 
 DrawBorder(hwnd) {
