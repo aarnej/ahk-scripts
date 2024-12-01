@@ -296,7 +296,7 @@ WindowFromPoint(X, Y) { ; by SKAN and Linear Spoon
 
 Log(text) {
     try {
-        FileAppend text "`n", A_Desktop "/" SubStr(A_ScriptName, 1, -4) ".log"
+        ; FileAppend text "`n", A_Desktop "/" SubStr(A_ScriptName, 1, -4) ".log"
     }
 }
 
