@@ -79,7 +79,8 @@ DrawBorder(hwnd) {
             g.marginx := 0
             g.marginy := 0
             g.opt("-DPIScale -Caption +ToolWindow")
-            showopts := "x" x-4 " y" y-4 "  w" w+8 " h" h+8 " hide"
+            ; For borderWidth=0 paddedBorderWidth=240
+            showopts := "x" x+18 " y" y-4 "  w" w-36 " h" h-15 " hide"
             g.show(showopts)
             g.restore()
             WinMoveBelow(g.hwnd, hwnd)
