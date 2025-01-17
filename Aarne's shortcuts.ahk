@@ -27,10 +27,14 @@ RegisterWinEventCallbacks()
 #!^+8:: {
     if WinExist("ahk_exe WindowsTerminal.exe")
         WinActivate
+    else
+        Run "wt.exe"
 }
 #!^+a:: {
     if WinExist("ahk_exe Spotify.exe")
         WinActivate
+    else
+        Run "spotify:"
 }
 #!^+b:: {
     if WinExist("ahk_exe Obsidian.exe")
