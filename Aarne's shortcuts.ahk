@@ -35,6 +35,8 @@ RegisterWinEventCallbacks()
 #!^+b:: {
     if WinExist("ahk_exe Obsidian.exe")
         WinActivate
+    else
+        Run "obsidian:"
 }
 #!^+c:: {
     if WinExist("ahk_exe ms-teams.exe")
