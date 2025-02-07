@@ -25,10 +25,10 @@ RegisterWinEventCallbacks()
 }
 #!^+7:: WinMinimize "A"
 #!^+8:: {
-    if WinExist("ahk_exe WindowsTerminal.exe")
+    if WinExist("ahk_exe alacritty.exe")
         WinActivate
     else
-        Run "wt.exe"
+        Run "alacritty"
 }
 #!^+a:: {
     if WinExist("ahk_exe Spotify.exe")
